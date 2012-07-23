@@ -1,10 +1,18 @@
-var categories = new Array();
-var categoryListItem = '<li><a href="news.xhtml?category=${code}">${title}</a></li>';
-var defaultCategory = '<li><a href="news.xhtml">Latest News</a></li>';
+var NEWS_URL = 'http://rss.news.yahoo.com/rss/';
 
+var categories = new Array();
+var categoryListItem = '<li><a href="#" onclick="loadNews(\'${code}\');">${title}</a></li>';
+var defaultCategory =  '<li><a href="#" onclick="loadNews();">Latest News</a></li>';
+var initialized = false;
+
+// TODO replace cookies with client-side storage. Needs to be enabled in the WebView!
 function init() {
+	if (initialized) {
+		return;
+	}
 	_setMenu();
 	_showHomePage();
+	initialized = true;
 }
 
 function _setMenu() {
@@ -18,7 +26,14 @@ function _setMenu() {
 
 	$('#news_home_link').on('click', function() {
 		_showHomePage();
-	});		
+	});	
+	
+	$('#category_add_button').bind('click', function() {
+		var selection = $('#category_select option:selected');
+		// TODO: add sanity checks
+		_addCategory(selection.val(), selection.text());		
+		_showHomePage();		
+	});	
 }
 
 function _showHomePage() {
@@ -27,7 +42,26 @@ function _showHomePage() {
 }
 
 function _showPage(page) {
-	$.mobile.changePage($('#' + page + '_page'));
+	$.mobile.changePage('#' + page + '_page', {changeHash:false});
+}
+
+function loadNews(category) {
+	var url = NEWS_URL;
+	
+	if (category) {
+		url += category;
+	}
+	
+	$.ajax({
+		type: 'get',
+		url: url,
+		dataType: 'xml',
+		success: displayNews		
+	});
+}
+
+function displayNews(data) {
+	// TODO parse response data and create news items
 }
 
 function _loadCategories() {
@@ -42,15 +76,6 @@ function _loadCategories() {
 		categoryList.append(item);		
 	});
 	categoryList.listview('refresh');		
-}
-
-function initCategoryEditor() {
-	$('#category_add_button').bind('click', function() {
-		var selection = $('#category_select option:selected');
-		// TODO: add sanity checks
-		_addCategory(selection.val(), selection.text());		
-		$.mobile.changePage('index.htm');		
-	});
 }
 
 function _addCategory(code, title) {
