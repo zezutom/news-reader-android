@@ -17,9 +17,11 @@ public class NewsReader extends Activity {
 
 		view = (WebView) findViewById(R.id.webview);
 		view.setWebViewClient(new NewsClient());
-		view.loadUrl("file:///android_asset/www/index.html");
 		
-		WebSettings settings = view.getSettings();		
-		settings.setJavaScriptEnabled(true);		
+		WebSettings settings = view.getSettings();	
+		settings.setDomStorageEnabled(true);
+		settings.setJavaScriptEnabled(true);
+		
+		view.loadUrl("file:///android_asset/www/index.html");				
 	}
 }
